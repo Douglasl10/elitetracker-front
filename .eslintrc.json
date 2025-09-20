@@ -1,0 +1,45 @@
+{
+		"env": {
+		"node": true,
+		"es2021": true
+	},
+	"extends": [
+		"prettier",
+		"standard-with-typescript"
+	],
+	"overrides": [
+	],
+	"plugins": [
+		"prettier",
+		"eslint-plugin-import-helpers"
+	],
+	"parserOptions": {
+		"ecmaVersion": "latest",
+		"sourceType": "module"
+	},
+	"rules": {
+		"prettier/prettier": "error",
+		"import-helpers/order-imports": [
+			"warn",
+			{
+				"newlinesBetween": "always",
+				"grupos": [
+					"/^node:*/",
+					"module",
+					[
+						"parent",
+						"sibling",
+						"index"
+					]
+				],
+				"ts(2349)": "ignoreCase",
+				"ts(2769)": "off",
+				"ts(18047)": "off",
+				"alphabetize": {
+					"order": "asc",
+					"ignoreCase": true
+				}
+			}
+		]
+	}
+}
