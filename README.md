@@ -1,7 +1,6 @@
 # EliteTracker
 
-O **EliteTracker** é um sistema completo de rastreamento e monitoramento de dados, composto por duas partes principais:
-
+O **EliteTracker** é um sistema completo de criação de habitos diarios:
 - **Backend**: [elite-tracker-api](https://github.com/Douglasl10/elite-tracker-api)  
 - **Frontend**: [elitetracker-front](https://github.com/Douglasl10/elitetracker-front)
 
@@ -9,7 +8,7 @@ O **EliteTracker** é um sistema completo de rastreamento e monitoramento de dad
 
 ## 🧩 Visão Geral
 
-O **EliteTracker** foi desenvolvido para fornecer uma solução robusta e escalável para o rastreamento e monitoramento de dados. A arquitetura é composta por um backend em TypeScript, utilizando Node.js, e um frontend moderno baseado em React com TypeScript, garantindo uma experiência de usuário fluida e interativa.
+O **EliteTracker** foi desenvolvido para fornecer um controle dos habitos diarios do Usuario. A arquitetura é composta por um backend em TypeScript, utilizando Node.js, e um frontend moderno baseado em React com TypeScript, garantindo uma experiência de usuário fluida e interativa.
 
 ## ⚙️ Tecnologias Utilizadas
 
