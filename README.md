@@ -1,69 +1,65 @@
-# React + TypeScript + Vite
+# EliteTracker
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+O **EliteTracker** é um sistema completo de criação de habitos diarios:
+- **Backend**: [elite-tracker-api](https://github.com/Douglasl10/elite-tracker-api)  
+- **Frontend**: [elitetracker-front](https://github.com/Douglasl10/elitetracker-front)
 
-Currently, two official plugins are available:
+<img src="https://raw.githubusercontent.com/Douglasl10/elitetracker-front/refs/heads/main/public/capa.png"/>
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## 🧩 Visão Geral
 
-## Expanding the ESLint configuration
+O **EliteTracker** foi desenvolvido para fornecer um controle dos habitos diarios do Usuario. A arquitetura é composta por um backend em TypeScript, utilizando Node.js, e um frontend moderno baseado em React com TypeScript, garantindo uma experiência de usuário fluida e interativa.
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+## ⚙️ Tecnologias Utilizadas
 
-```js
-export default tseslint.config([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+### Backend (API)
 
-      // Remove tseslint.configs.recommended and replace with this
-      ...tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      ...tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      ...tseslint.configs.stylisticTypeChecked,
+- **Node.js**: Ambiente de execução JavaScript no servidor.  
+- **TypeScript**: Superset do JavaScript que adiciona tipagem estática.  
+- **Express**: Framework minimalista para construção de APIs RESTful.  
+- **ESLint**: Ferramenta para identificar e corrigir padrões de código.  
+- **Prettier**: Formatador de código para garantir consistência no estilo.  
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+### Frontend
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+- **React**: Biblioteca JavaScript para construção de interfaces de usuário.  
+- **TypeScript**: Superset do JavaScript que adiciona tipagem estática.  
+- **Vite**: Ferramenta de build e desenvolvimento rápido.  
+- **ESLint**: Ferramenta para identificar e corrigir padrões de código.  
+- **Prettier**: Formatador de código para garantir consistência no estilo.  
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+## 🛠️ Funcionalidades
 
-export default tseslint.config([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+### Backend
+
+- API RESTful para gerenciamento de dados.  
+- Sistema de autenticação e autorização de usuários.  
+- Conexão com banco de dados para persistência de informações.  
+
+### Frontend
+
+- Interface moderna e responsiva.  
+- Integração com a API para visualização de dados em tempo real.  
+- Dashboard interativo com gráficos e tabelas.  
+- Sistema de autenticação de usuários.  
+
+## 📦 Instalação
+
+### Backend
+
+1. Clone o repositório:
+
+   ```bash
+   git clone https://github.com/Douglasl10/elite-tracker-api.git
+2. Navegue até o diretório do projeto:
+   cd elite-tracker-api
+3. Instale as dependências:
+    npm install
+4. Configure as variáveis de ambiente conforme necessário.
+5. Inicie o servidor:
+   npm start
+A API estará disponível em http://localhost:4000.
+
+🔗 Conectando Frontend e Backend
+
+Certifique-se de que o backend esteja em execução antes de iniciar o frontend. O frontend se comunica com a API do backend para obter e enviar dados.       
