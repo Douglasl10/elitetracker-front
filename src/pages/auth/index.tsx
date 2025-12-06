@@ -6,7 +6,7 @@ import { useNavigate } from 'react-router-dom';
 
 const Autenticacao = () => {
     const [searchParams] = useSearchParams()
-    const {getUserInfo, userData} = useUser()
+    const {getUserInfo} = useUser()
     const navigate = useNavigate()
 
     async function handleAuth() {

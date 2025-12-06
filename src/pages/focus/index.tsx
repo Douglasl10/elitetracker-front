@@ -55,7 +55,7 @@ export function Focus() {
         let totalTimeInMinutes = 0
 
         if (timeMetrics.length) {
-            for (const { timeFrom, timeTo } of timeMetrics) {
+            for (const { timeTo } of timeMetrics) {
                 const diff = timeTo.diff(timeTo, "minute")
                 totalTimeInMinutes += diff
             }
@@ -221,7 +221,6 @@ export function Focus() {
                 date: currentDate
             }
         });
-        const [metrics] = data
 
         setFocusMetrics(data)
     }
