@@ -9,18 +9,17 @@ type PrivateRoutesProps = {
 }
 
 export function PrivateRoutes({ component }: PrivateRoutesProps) {
-    const userData = localStorage.getItem(userLocalStoreKey)
+    const isBrowser = typeof window !== "undefined";
+    const userData = isBrowser ? localStorage.getItem(userLocalStoreKey) : null;
 
     if (!userData) {
         return <Navigate to="/" />
     }
-    return (
-        <>
 
-            <AppContainer>
-                <Sidebar />
-                {component}
-            </AppContainer>
-        </>
-    )
+    return (
+        <AppContainer>
+            <Sidebar />
+            {component}
+        </AppContainer>
+    );
 }
