@@ -1,30 +1,18 @@
-import styles from './styles.module.css';
-import { useSearchParams } from 'react-router-dom';
-import { useEffect } from 'react';
-import { useUser } from '../../hooks/use-user';
-import { useNavigate } from 'react-router-dom';
+import { useEffect } from "react";
+import { useSearchParams } from "react-router-dom";
 
-const Autenticacao = () => {
-    const [searchParams] = useSearchParams()
-    const {getUserInfo} = useUser()
-    const navigate = useNavigate()
+function AuthRedirect() {
+  const [params] = useSearchParams();
+  const token = params.get("token");
 
-    async function handleAuth() {
-        await getUserInfo(String(searchParams.get('code')))
-
-        navigate('/habits')
+  useEffect(() => {
+    if (token) {
+      localStorage.setItem("token", token);
+      window.location.href = "/dashboard"; 
     }
+  }, [token]);
 
-    useEffect(() => {
-        handleAuth()
-    }, [])
+  return <p>Autenticando...</p>;
+}
 
-  return (
-    <div className={styles.container}>
-      <h1>Loading...</h1>
-      
-    </div>
-  );
-};
-
-export default Autenticacao;
+export default AuthRedirect;
