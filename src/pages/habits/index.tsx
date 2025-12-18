@@ -28,7 +28,6 @@ const Habits = () => {
   const [metrics, setMetrics] = useState<Habitsmetrics>({} as Habitsmetrics);
   const [selectedHabit, setSelectedHabit] = useState<Habit | null>(null);
   const nameInput = useRef<HTMLInputElement>(null);
-  const token = localStorage.getItem('token');
   const [habits, setHabits] = useState<Habit[]>([]);
 
   const [displayedMonth, setDisplayedMonth] = useState<Date>(dayjs().startOf('month').toDate());
@@ -64,7 +63,7 @@ const Habits = () => {
   async function handleSubimit() {
     const name = nameInput.current?.value;
     if (name) {
-      await api.post('/habits', { name }, { headers: { Authorization: `Bearer ${token}` } });
+      await api.post('/habits', { name });
       if (nameInput.current) nameInput.current.value = '';
       await loadHabits();
     }
