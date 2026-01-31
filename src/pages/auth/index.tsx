@@ -1,22 +1,18 @@
 import { useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import { useUser } from "../../hooks/use-user";
+import { userLocalStoreKey } from "../../hooks/use-user";
 
 function AuthRedirect() {
   const [params] = useSearchParams();
   const navigate = useNavigate();
-  const { getUserInfo } = useUser();
-  const code = params.get("code");
+  const token = params.get("token");
 
   useEffect(() => {
-    async function handleAuth() {
-      if (code) {
-        await getUserInfo(code);
-        navigate("/habits");
-      }
+    if (token) {
+      localStorage.setItem(userLocalStoreKey, JSON.stringify({ token }));
+      navigate("/habits");
     }
-    handleAuth();
-  }, [code, getUserInfo, navigate]);
+  }, [token, navigate]);
 
   return <p>Autenticando...</p>;
 }
