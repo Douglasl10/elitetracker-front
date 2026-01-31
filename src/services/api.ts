@@ -7,7 +7,7 @@ const baseURL = trimmedBaseURL.endsWith("/auth")
   ? trimmedBaseURL.slice(0, -"/auth".length)
   : trimmedBaseURL;
 
-console.log("API Base URL:", baseURL);
+console.log("API Base URL:", baseURL); // Debug log
 
 const api = axios.create({
   baseURL,
