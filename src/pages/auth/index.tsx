@@ -1,19 +1,27 @@
-app.use(
-  cors({
-    origin: (origin, callback) => {
-      if (!origin) return callback(null, true);
+import { useEffect } from "react";
+import { useNavigate, useSearchParams } from "react-router-dom";
+import { useUser } from "../../hooks/use-user";
 
-      const allowed =
-        origin.startsWith("http://localhost") ||
-        origin.includes("netlify.app") ||
-        origin.includes("vercel.app");
+export default function AuthRedirect() {
+  const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const { userData } = useUser();
 
-      if (allowed) {
-        return callback(null, true);
-      }
+  useEffect(() => {
+    const token = searchParams.get("token");
 
-      return callback(new Error(`CORS blocked: ${origin}`));
-    },
-    credentials: true,
-  })
-);
+    if (token) {
+      // salva no localStorage
+      localStorage.setItem(
+        import.meta.env.VITE_LOCALSTORAGE_KEY + ": userData",
+        JSON.stringify({ token })
+      );
+
+      navigate("/habits"); // 👈 ou "/focus"
+    } else {
+      navigate("/");
+    }
+  }, []);
+
+  return <p>Autenticando...</p>;
+}
