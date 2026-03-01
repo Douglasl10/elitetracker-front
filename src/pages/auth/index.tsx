@@ -11,17 +11,19 @@ export default function AuthRedirect() {
     const token = searchParams.get("token");
 
     if (token) {
-      // salva no localStorage
+      // salva no localStorage (sem espaço na chave)
       localStorage.setItem(
-        import.meta.env.VITE_LOCALSTORAGE_KEY + ": userData",
+        import.meta.env.VITE_LOCALSTORAGE_KEY + ":userData",
         JSON.stringify({ token })
       );
 
-      navigate("/habits"); // 👈 ou "/focus"
+      // redireciona para a área logada
+      navigate("/habits"); // ou "/focus"
     } else {
+      // se não houver token, volta para a home
       navigate("/");
     }
-  }, []);
+  }, [searchParams, navigate]);
 
   return <p>Autenticando...</p>;
 }
