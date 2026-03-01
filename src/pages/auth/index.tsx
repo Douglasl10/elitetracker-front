@@ -1,29 +1,19 @@
-import { useEffect, useRef } from "react";
-import { useNavigate, useSearchParams } from "react-router-dom";
-import { userLocalStoreKey } from "../../hooks/use-user";
+app.use(
+  cors({
+    origin: (origin, callback) => {
+      if (!origin) return callback(null, true);
 
-function AuthRedirect() {
-  const [params] = useSearchParams();
-  const navigate = useNavigate();
-  const hasRun = useRef(false);
+      const allowed =
+        origin.startsWith("http://localhost") ||
+        origin.includes("netlify.app") ||
+        origin.includes("vercel.app");
 
-  const token = params.get("token");
+      if (allowed) {
+        return callback(null, true);
+      }
 
-  useEffect(() => {
-    if (!token || hasRun.current) return;
-
-    hasRun.current = true;
-
-    localStorage.setItem(
-      userLocalStoreKey,
-      JSON.stringify({ token })
-    );
-
-    // limpa a URL e redireciona
-    navigate("/habits", { replace: true });
-  }, [token, navigate]);
-
-  return <p>Autenticando...</p>;
-}
-
-export default AuthRedirect;
+      return callback(new Error(`CORS blocked: ${origin}`));
+    },
+    credentials: true,
+  })
+);
