@@ -8,6 +8,7 @@ import { Focus } from "../pages/focus";
 export const router = createBrowserRouter([
   { path: "/", element: <Login /> },
   { path: "/habits", element: <PrivateRoutes component={<Habits />} /> },
+  { path: "/auth/callback", element: <AuthRedirect /> },
   { path: "/autenticacao", element: <AuthRedirect /> },
   { path: "/focus", element: <PrivateRoutes component={<Focus />} /> },
 ]);
