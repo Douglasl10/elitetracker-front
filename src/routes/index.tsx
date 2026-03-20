@@ -1,11 +1,11 @@
-import { createHashRouter } from "react-router-dom";
+import { createBrowserRouter } from "react-router-dom";
 import Login from "../pages/login";
 import { PrivateRoutes } from "./private-routes";
 import Habits from "../pages/habits";
 import AuthRedirect from "../pages/auth";
 import { Focus } from "../pages/focus";
 
-export const router = createHashRouter([
+export const router = createBrowserRouter([
   { path: "/", element: <Login /> },
   { path: "/habits", element: <PrivateRoutes component={<Habits />} /> },
   { path: "/autenticacao", element: <AuthRedirect /> },

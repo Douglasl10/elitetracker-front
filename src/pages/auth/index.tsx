@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
-// import { useUser } from "../../hooks/use-user"; // removido
+import { userLocalStoreKey } from "../../hooks/use-user";
 
 export default function AuthRedirect() {
   const navigate = useNavigate();
@@ -8,11 +8,14 @@ export default function AuthRedirect() {
 
   useEffect(() => {
     const token = searchParams.get("token");
+    const name = searchParams.get("name");
+    const avatarUrl = searchParams.get("avatarUrl");
+    const id = searchParams.get("id");
 
     if (token) {
       localStorage.setItem(
-        import.meta.env.VITE_LOCALSTORAGE_KEY + ":userData",
-        JSON.stringify({ token })
+        userLocalStoreKey,
+        JSON.stringify({ token, name, avatarUrl, id })
       );
       navigate("/habits"); // ou "/focus"
     } else {

@@ -8,10 +8,17 @@ import { GithubLogo } from '@phosphor-icons/react'
 function Login () {
     
     async function handleAuth () {
-        const {data} = await api.get('/auth')
+        try {
+            const { data } = await api.get('/auth')
 
-         window.location.href = data.redirectUrl
-         
+            if (data.redirectUrl) {
+                window.location.href = data.redirectUrl
+            } else {
+                console.error('Redirect URL not found in API response')
+            }
+        } catch (error) {
+            console.error('Error during authentication request:', error)
+        }
     }
 
     return (

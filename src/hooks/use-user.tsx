@@ -20,7 +20,7 @@ type UserProviderProps = {
 }
 
 
-export const userLocalStoreKey = `${import.meta.env.VITE_LOCALSTORAGE_KEY}: userData`;
+export const userLocalStoreKey = `${import.meta.env.VITE_LOCALSTORAGE_KEY}:userData`;
 
 const UserContext = createContext({} as UserContextProps);
 
