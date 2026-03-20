@@ -46,8 +46,9 @@ export function UserProvider({ children }: UserProviderProps) {
 
     async function loadUserData() {
         const localData = localStorage.getItem(userLocalStoreKey)
+        console.log("Carregando dados do localStorage:", localData);
         if (localData) {
-            putUserData(JSON.parse(localData) as UserData);
+            setUserData(JSON.parse(localData) as UserData);
         }
     }
 
