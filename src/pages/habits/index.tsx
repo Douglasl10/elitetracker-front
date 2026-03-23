@@ -94,9 +94,25 @@ const Habits = () => {
     if (isSubmitting) return;
 
     const name = nameInput.current?.value?.trim();
-    console.log("Tentando criar hábito com o nome:", name);
     
     if (name) {
+      // Verifica se o hábito já existe localmente (independente de estar concluído hoje ou não)
+      const habitAlreadyExists = habits.find(h => h.name.toLowerCase() === name.toLowerCase());
+      
+      if (habitAlreadyExists) {
+        const isCompletedToday = habitAlreadyExists.completedDates.some(date => dayjs(date).format('YYYY-MM-DD') === todayKey);
+        
+        if (isCompletedToday) {
+          alert(`O hábito "${name}" já foi concluído hoje e está oculto.`);
+        } else {
+          alert(`O hábito "${name}" já está na sua lista.`);
+          handleSelectHabit(habitAlreadyExists);
+        }
+        
+        if (nameInput.current) nameInput.current.value = '';
+        return;
+      }
+
       setIsSubmitting(true);
       try {
         const response = await api.post('/habits', { name });
@@ -105,12 +121,6 @@ const Habits = () => {
         if (nameInput.current) nameInput.current.value = '';
         await loadHabits();
       } catch (error: any) {
-        // Se for 400 mas o primeiro funcionou, ignoramos o alerta repetido
-        if (error.response?.status === 400 && error.response?.data?.message?.includes("already exists")) {
-            console.log("Hábito já existe, ignorando erro duplicado.");
-            return;
-        }
-
         console.error("Erro detalhado ao criar hábito:", {
           message: error.message,
           response: error.response?.data,
