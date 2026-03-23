@@ -78,15 +78,29 @@ const Habits = () => {
   }
 
   async function handleSubimit() {
-    const name = nameInput.current?.value;
+    const name = nameInput.current?.value?.trim();
+    console.log("Tentando criar hábito com o nome:", name);
+    
     if (name) {
       try {
-        await api.post('/habits', { name });
+        const response = await api.post('/habits', { name });
+        console.log("Hábito criado com sucesso:", response.data);
+        
         if (nameInput.current) nameInput.current.value = '';
         await loadHabits();
-      } catch (error) {
-        console.error("Erro ao criar hábito:", error);
+      } catch (error: any) {
+        console.error("Erro detalhado ao criar hábito:", {
+          message: error.message,
+          response: error.response?.data,
+          status: error.response?.status,
+          payload: { name }
+        });
+        
+        const errorMessage = error.response?.data?.message || error.response?.data?.error || 'Erro desconhecido';
+        alert(`Erro ao criar hábito: ${errorMessage}`);
       }
+    } else {
+      alert("Por favor, digite o nome do hábito.");
     }
   }
 
