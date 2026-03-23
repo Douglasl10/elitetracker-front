@@ -130,6 +130,12 @@ const Habits = () => {
 
   const todayKey = today.format('YYYY-MM-DD');
 
+  const habitsToDisplay = useMemo(() => {
+    return habits.filter(habit => 
+      !habit.completedDates.some(date => dayjs(date).format('YYYY-MM-DD') === todayKey)
+    );
+  }, [habits, todayKey]);
+
   return (
     <div className={styles.container}>
       <div className={styles.content}>
@@ -140,7 +146,7 @@ const Habits = () => {
         </div>
 
         <div className={styles.tasks}>
-          {habits.map(habit => (
+          {habitsToDisplay.map(habit => (
             <div className={clsx(styles.task, habit._id === selectedHabit?._id && styles['task-active'])} key={habit._id}>
               <p onClick={() => handleSelectHabit(habit, displayedMonth)}>{habit.name}</p>
               <div>
@@ -148,9 +154,7 @@ const Habits = () => {
                   type="checkbox"
                   size={24}
                   className={styles.sucess}
-                  checked={habit.completedDates.some((date: string) =>
-                    dayjs(date).format('YYYY-MM-DD') === todayKey
-                  )}
+                  checked={false}
                   onChange={() => handleToggle(habit)}
                 />
                 <TrashIcon size={24} className={styles.apagar} onClick={() => handleDelete(habit._id)} />
