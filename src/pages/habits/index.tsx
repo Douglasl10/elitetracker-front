@@ -72,6 +72,18 @@ const Habits = () => {
     try {
       const { data } = await api.get<Habit[]>('/habits');
       setHabits(data);
+
+      // Seleciona o primeiro hábito automaticamente se nenhum estiver selecionado
+      if (data.length > 0 && !selectedHabit) {
+        handleSelectHabit(data[0]);
+      } else if (selectedHabit) {
+        // Atualiza os dados do hábito selecionado se ele ainda existir
+        const current = data.find(h => h._id === selectedHabit._id);
+        if (current) {
+          handleSelectHabit(current);
+        }
+      }
+
       return data;
     } catch (error) {
       console.error("Erro ao carregar hábitos:", error);

@@ -27,9 +27,18 @@ export default function AuthRedirect() {
 
     if (token) {
       console.log("Token encontrado, salvando e redirecionando...");
+      
+      // Se name ou avatarUrl vierem como string "null", convertemos para null real ou string vazia
+      const userData = {
+        token,
+        name: name && name !== 'null' ? name : '',
+        avatarUrl: avatarUrl && avatarUrl !== 'null' ? avatarUrl : '',
+        id: id && id !== 'null' ? id : ''
+      };
+
       localStorage.setItem(
         userLocalStoreKey,
-        JSON.stringify({ token, name, avatarUrl, id })
+        JSON.stringify(userData)
       );
       navigate("/habits");
     } else {
