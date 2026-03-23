@@ -31,6 +31,8 @@ const Habits = () => {
   const [habits, setHabits] = useState<Habit[]>([]);
   const [completingHabitId, setCompletingHabitId] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [completionTimestamps, setCompletionTimestamps] = useState<Record<string, number>>({});
+  const [hiddenHabitIds, setHiddenHabitIds] = useState<string[]>([]);
 
   const [displayedMonth, setDisplayedMonth] = useState<Date>(dayjs().startOf('month').toDate());
   const today = dayjs().startOf('day');
@@ -46,11 +48,35 @@ const Habits = () => {
 
   const habitsToDisplay = useMemo(() => {
     return habits.filter(habit => {
-      const isDoneToday = habit.completedDates.some(date => dayjs(date).format('YYYY-MM-DD') === todayKey);
-      // Se o hábito estiver em processo de conclusão, ainda mostramos para a animação rodar
-      return !isDoneToday || habit._id === completingHabitId;
+      // Um hábito é ocultado apenas se estiver no array de hiddenHabitIds
+      return !hiddenHabitIds.includes(habit._id);
     });
-  }, [habits, todayKey, completingHabitId]);
+  }, [habits, hiddenHabitIds]);
+
+  // Efeito para gerenciar o timer de 10 minutos
+  useEffect(() => {
+    const interval = setInterval(() => {
+      const now = Date.now();
+      const tenMinutesInMs = 10 * 60 * 1000;
+      
+      const newHiddenIds: string[] = [];
+      
+      Object.entries(completionTimestamps).forEach(([id, timestamp]) => {
+        if (now - timestamp >= tenMinutesInMs) {
+          newHiddenIds.push(id);
+        }
+      });
+
+      if (newHiddenIds.length > 0) {
+        setHiddenHabitIds(prev => {
+          const combined = [...new Set([...prev, ...newHiddenIds])];
+          return combined;
+        });
+      }
+    }, 5000); // Checa a cada 5 segundos
+
+    return () => clearInterval(interval);
+  }, [completionTimestamps]);
 
   async function handleSelectHabit(habit: Habit, currentMonth?: Date) {
     setSelectedHabit(habit);
@@ -162,12 +188,26 @@ const Habits = () => {
   async function handleToggle(habit: Habit) {
     const isCompleted = habit.completedDates.some(date => dayjs(date).format('YYYY-MM-DD') === todayKey);
     
-    // Se estiver marcando como concluído, inicia animação
+    // Inicia animação visual
+    setCompletingHabitId(habit._id);
+
+    // Se estiver marcando como concluído, registra o timestamp para sumir em 10 min
     if (!isCompleted) {
-      setCompletingHabitId(habit._id);
+      setCompletionTimestamps(prev => ({
+        ...prev,
+        [habit._id]: Date.now()
+      }));
+    } else {
+      // Se estiver DESMARCANDO, remove dos timestamps e da lista de ocultos
+      setCompletionTimestamps(prev => {
+        const newState = { ...prev };
+        delete newState[habit._id];
+        return newState;
+      });
+      setHiddenHabitIds(prev => prev.filter(id => id !== habit._id));
     }
 
-    // Aguarda a animação visual antes de disparar a lógica (opcional, mas melhora UX)
+    // Pequeno delay para a animação do checkbox antes de disparar a API
     setTimeout(async () => {
       try {
         await api.patch(`/habits/${habit._id}/toggle`);
@@ -183,7 +223,7 @@ const Habits = () => {
       } finally {
         setCompletingHabitId(null);
       }
-    }, 600); // Tempo da animação CSS
+    }, 300); 
   }
 
   async function handleSelectMonth(date: DateStringValue) {
@@ -230,7 +270,7 @@ const Habits = () => {
                   type="checkbox"
                   size={24}
                   className={styles.sucess}
-                  checked={habit._id === completingHabitId}
+                  checked={habit.completedDates.some(date => dayjs(date).format('YYYY-MM-DD') === todayKey) || habit._id === completingHabitId}
                   onChange={() => handleToggle(habit)}
                 />
                 <TrashIcon size={24} className={styles.apagar} onClick={() => handleDelete(habit._id)} />
