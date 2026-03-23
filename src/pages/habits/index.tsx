@@ -56,8 +56,13 @@ const Habits = () => {
   }
 
   async function loadHabits() {
-    const { data } = await api.get<Habit[]>('/habits');
-    setHabits(data);
+    try {
+      const { data } = await api.get<Habit[]>('/habits');
+      setHabits(data);
+      return data;
+    } catch (error) {
+      console.error("Erro ao carregar hábitos:", error);
+    }
   }
 
   async function handleSubimit() {
@@ -81,10 +86,35 @@ const Habits = () => {
   }
 
   async function handleToggle(habit: Habit) {
-    await api.patch(`/habits/${habit._id}/toggle`);
-    await loadHabits();
+    const isCompleted = habit.completedDates.some(date => dayjs(date).format('YYYY-MM-DD') === todayKey);
+    
+    // Atualização otimista: Refletir a mudança imediatamente no checkbox
+    const updatedHabits = habits.map(h => {
+      if (h._id === habit._id) {
+        const newCompletedDates = isCompleted 
+          ? h.completedDates.filter(date => dayjs(date).format('YYYY-MM-DD') !== todayKey)
+          : [...h.completedDates, new Date().toISOString()];
+        
+        return { ...h, completedDates: newCompletedDates };
+      }
+      return h;
+    });
+    
+    setHabits(updatedHabits);
 
-    await handleSelectHabit(habit, displayedMonth);
+    try {
+      await api.patch(`/habits/${habit._id}/toggle`);
+      const refreshedHabits = await loadHabits();
+      
+      const updatedHabit = refreshedHabits?.find(h => h._id === habit._id);
+      if (updatedHabit && selectedHabit?._id === habit._id) {
+        await handleSelectHabit(updatedHabit, displayedMonth);
+      }
+    } catch (error) {
+      console.error("Erro ao alternar hábito:", error);
+      // Se der erro, voltamos para o estado do servidor
+      loadHabits();
+    }
   }
 
 
