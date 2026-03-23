@@ -30,6 +30,7 @@ const Habits = () => {
   const nameInput = useRef<HTMLInputElement>(null);
   const [habits, setHabits] = useState<Habit[]>([]);
   const [completingHabitId, setCompletingHabitId] = useState<string | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const [displayedMonth, setDisplayedMonth] = useState<Date>(dayjs().startOf('month').toDate());
   const today = dayjs().startOf('day');
@@ -78,10 +79,13 @@ const Habits = () => {
   }
 
   async function handleSubimit() {
+    if (isSubmitting) return;
+
     const name = nameInput.current?.value?.trim();
     console.log("Tentando criar hábito com o nome:", name);
     
     if (name) {
+      setIsSubmitting(true);
       try {
         const response = await api.post('/habits', { name });
         console.log("Hábito criado com sucesso:", response.data);
@@ -89,6 +93,12 @@ const Habits = () => {
         if (nameInput.current) nameInput.current.value = '';
         await loadHabits();
       } catch (error: any) {
+        // Se for 400 mas o primeiro funcionou, ignoramos o alerta repetido
+        if (error.response?.status === 400 && error.response?.data?.message?.includes("already exists")) {
+            console.log("Hábito já existe, ignorando erro duplicado.");
+            return;
+        }
+
         console.error("Erro detalhado ao criar hábito:", {
           message: error.message,
           response: error.response?.data,
@@ -98,9 +108,17 @@ const Habits = () => {
         
         const errorMessage = error.response?.data?.message || error.response?.data?.error || 'Erro desconhecido';
         alert(`Erro ao criar hábito: ${errorMessage}`);
+      } finally {
+        setIsSubmitting(false);
       }
     } else {
       alert("Por favor, digite o nome do hábito.");
+    }
+  }
+
+  function handleKeyDown(e: React.KeyboardEvent<HTMLInputElement>) {
+    if (e.key === 'Enter') {
+        handleSubimit();
     }
   }
 
@@ -161,8 +179,17 @@ const Habits = () => {
       <div className={styles.content}>
         <Header title="Habitos Diarios" />
         <div className={styles.input}>
-          <input type="text" placeholder="Adicione um novo hábito" ref={nameInput} />
-          <PaperPlaneRightIcon size={24} onClick={handleSubimit} />
+          <input 
+            type="text" 
+            placeholder="Adicione um novo hábito" 
+            ref={nameInput} 
+            onKeyDown={handleKeyDown}
+          />
+          <PaperPlaneRightIcon 
+            size={24} 
+            onClick={handleSubimit} 
+            style={{ opacity: isSubmitting ? 0.5 : 1, cursor: isSubmitting ? 'not-allowed' : 'pointer' }}
+          />
         </div>
 
         <div className={styles.tasks}>
