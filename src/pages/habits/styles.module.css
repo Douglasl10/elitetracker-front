@@ -71,6 +71,32 @@
     background-color: var(--info);
 }
 
+.completing {
+    animation: slideOut 0.6s ease-in-out forwards;
+    pointer-events: none;
+}
+
+@keyframes slideOut {
+    0% {
+        transform: translateX(0);
+        opacity: 1;
+        background-color: rgba(0, 255, 0, 0.1);
+    }
+    50% {
+        transform: translateX(20px);
+        opacity: 0.5;
+        background-color: rgba(0, 255, 0, 0.2);
+    }
+    100% {
+        transform: translateX(100px);
+        opacity: 0;
+        height: 0;
+        margin: 0;
+        padding: 0;
+        border: none;
+    }
+}
+
 .task div {
     display: flex;
     align-items: center;

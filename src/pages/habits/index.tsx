@@ -29,9 +29,11 @@ const Habits = () => {
   const [selectedHabit, setSelectedHabit] = useState<Habit | null>(null);
   const nameInput = useRef<HTMLInputElement>(null);
   const [habits, setHabits] = useState<Habit[]>([]);
+  const [completingHabitId, setCompletingHabitId] = useState<string | null>(null);
 
   const [displayedMonth, setDisplayedMonth] = useState<Date>(dayjs().startOf('month').toDate());
   const today = dayjs().startOf('day');
+  const todayKey = today.format('YYYY-MM-DD');
 
   const metrisInfo = useMemo(() => {
     const numberOfMonthsDays = dayjs(displayedMonth).endOf('month').date();
@@ -41,18 +43,28 @@ const Habits = () => {
     return { completedDays, progress };
   }, [metrics, displayedMonth]);
 
+  const habitsToDisplay = useMemo(() => {
+    return habits.filter(habit => {
+      const isDoneToday = habit.completedDates.some(date => dayjs(date).format('YYYY-MM-DD') === todayKey);
+      // Se o hábito estiver em processo de conclusão, ainda mostramos para a animação rodar
+      return !isDoneToday || habit._id === completingHabitId;
+    });
+  }, [habits, todayKey, completingHabitId]);
+
   async function handleSelectHabit(habit: Habit, currentMonth?: Date) {
     setSelectedHabit(habit);
     const monthToRequest = currentMonth ? dayjs(currentMonth).startOf('month') : dayjs(displayedMonth).startOf('month');
 
-
-    const { data } = await api.get<Habitsmetrics>(`/habits/${habit._id}/metrics`, {
-      params: {
-        date: monthToRequest.toISOString()
-      }
-    });
-
-    setMetrics(data);
+    try {
+      const { data } = await api.get<Habitsmetrics>(`/habits/${habit._id}/metrics`, {
+        params: {
+          date: monthToRequest.toISOString()
+        }
+      });
+      setMetrics(data);
+    } catch (error) {
+      console.error("Erro ao carregar métricas:", error);
+    }
   }
 
   async function loadHabits() {
@@ -68,9 +80,13 @@ const Habits = () => {
   async function handleSubimit() {
     const name = nameInput.current?.value;
     if (name) {
-      await api.post('/habits', { name });
-      if (nameInput.current) nameInput.current.value = '';
-      await loadHabits();
+      try {
+        await api.post('/habits', { name });
+        if (nameInput.current) nameInput.current.value = '';
+        await loadHabits();
+      } catch (error) {
+        console.error("Erro ao criar hábito:", error);
+      }
     }
   }
 
@@ -79,44 +95,42 @@ const Habits = () => {
   }, []);
 
   async function handleDelete(id: string) {
-    await api.delete(`/habits/${id}`);
-    setHabits(habits.filter(habit => habit._id !== id));
-    setMetrics({} as Habitsmetrics);
-    setSelectedHabit(null);
+    try {
+      await api.delete(`/habits/${id}`);
+      setHabits(habits.filter(habit => habit._id !== id));
+      setMetrics({} as Habitsmetrics);
+      setSelectedHabit(null);
+    } catch (error) {
+      console.error("Erro ao deletar hábito:", error);
+    }
   }
 
   async function handleToggle(habit: Habit) {
     const isCompleted = habit.completedDates.some(date => dayjs(date).format('YYYY-MM-DD') === todayKey);
     
-    // Atualização otimista: Refletir a mudança imediatamente no checkbox
-    const updatedHabits = habits.map(h => {
-      if (h._id === habit._id) {
-        const newCompletedDates = isCompleted 
-          ? h.completedDates.filter(date => dayjs(date).format('YYYY-MM-DD') !== todayKey)
-          : [...h.completedDates, new Date().toISOString()];
-        
-        return { ...h, completedDates: newCompletedDates };
-      }
-      return h;
-    });
-    
-    setHabits(updatedHabits);
-
-    try {
-      await api.patch(`/habits/${habit._id}/toggle`);
-      const refreshedHabits = await loadHabits();
-      
-      const updatedHabit = refreshedHabits?.find(h => h._id === habit._id);
-      if (updatedHabit && selectedHabit?._id === habit._id) {
-        await handleSelectHabit(updatedHabit, displayedMonth);
-      }
-    } catch (error) {
-      console.error("Erro ao alternar hábito:", error);
-      // Se der erro, voltamos para o estado do servidor
-      loadHabits();
+    // Se estiver marcando como concluído, inicia animação
+    if (!isCompleted) {
+      setCompletingHabitId(habit._id);
     }
-  }
 
+    // Aguarda a animação visual antes de disparar a lógica (opcional, mas melhora UX)
+    setTimeout(async () => {
+      try {
+        await api.patch(`/habits/${habit._id}/toggle`);
+        const refreshedHabits = await loadHabits();
+        
+        const updatedHabit = refreshedHabits?.find(h => h._id === habit._id);
+        if (updatedHabit && selectedHabit?._id === habit._id) {
+          await handleSelectHabit(updatedHabit, displayedMonth);
+        }
+      } catch (error) {
+        console.error("Erro ao alternar hábito:", error);
+        loadHabits();
+      } finally {
+        setCompletingHabitId(null);
+      }
+    }, 600); // Tempo da animação CSS
+  }
 
   async function handleSelectMonth(date: DateStringValue) {
     if (!date) return;
@@ -127,14 +141,6 @@ const Habits = () => {
       await handleSelectHabit(selectedHabit, monthDate);
     }
   }
-
-  const todayKey = today.format('YYYY-MM-DD');
-
-  const habitsToDisplay = useMemo(() => {
-    return habits.filter(habit => 
-      !habit.completedDates.some(date => dayjs(date).format('YYYY-MM-DD') === todayKey)
-    );
-  }, [habits, todayKey]);
 
   return (
     <div className={styles.container}>
@@ -147,14 +153,21 @@ const Habits = () => {
 
         <div className={styles.tasks}>
           {habitsToDisplay.map(habit => (
-            <div className={clsx(styles.task, habit._id === selectedHabit?._id && styles['task-active'])} key={habit._id}>
+            <div 
+              className={clsx(
+                styles.task, 
+                habit._id === selectedHabit?._id && styles['task-active'],
+                habit._id === completingHabitId && styles.completing
+              )} 
+              key={habit._id}
+            >
               <p onClick={() => handleSelectHabit(habit, displayedMonth)}>{habit.name}</p>
               <div>
                 <input
                   type="checkbox"
                   size={24}
                   className={styles.sucess}
-                  checked={false}
+                  checked={habit._id === completingHabitId}
                   onChange={() => handleToggle(habit)}
                 />
                 <TrashIcon size={24} className={styles.apagar} onClick={() => handleDelete(habit._id)} />
